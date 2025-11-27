@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5100") // Allow requests from the frontend
+ // Allow requests from the frontend
 @RestController
 @RequestMapping("/api/bookings")
 public class BookingController {
