@@ -9,13 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import jakarta.servlet.Filter;
 
-// 1. Exclude the Error Config to stop the first crash
+// 1. Exclude Error Page Filter to prevent conflict with Tomcat
 @SpringBootApplication(exclude = {ErrorMvcAutoConfiguration.class})
 public class BackendApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        // 2. Disable the ErrorPageFilter registration to stop the second crash
+        // 2. Explicitly disable the ErrorPageFilter registration
         setRegisterErrorPageFilter(false);
         return application.sources(BackendApplication.class);
     }
@@ -24,8 +24,8 @@ public class BackendApplication extends SpringBootServletInitializer {
         SpringApplication.run(BackendApplication.class, args);
     }
 
-    // 3. THE FINAL FIX: Stop Spring Boot from registering the Security Filter twice.
-    // Tomcat 10 finds it automatically, so we tell Spring to stand down.
+    // 3. CRITICAL FIX: Prevent "springSecurityFilterChain already registered" error.
+    // This tells Spring Boot: "Tomcat already found the security filter, don't register it again."
     @Bean
     public FilterRegistrationBean<Filter> securityFilterChainRegistration(Filter springSecurityFilterChain) {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>(springSecurityFilterChain);
